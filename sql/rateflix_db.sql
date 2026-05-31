@@ -83,3 +83,23 @@ CREATE TABLE dbProj_ratings (
     FOREIGN KEY (user_id)
     REFERENCES dbProj_users(user_id)
 );
+
+ALTER TABLE dbProj_movies
+ADD FULLTEXT(title, short_description, description);
+
+DELIMITER //
+
+CREATE PROCEDURE dbProj_GetPopularMovies()
+BEGIN
+    SELECT 
+        m.title,
+        COUNT(r.rating_id) AS rating_count,
+        IFNULL(AVG(r.rating_value), 0) AS avg_rating
+    FROM dbProj_movies m
+    LEFT JOIN dbProj_ratings r ON m.movie_id = r.movie_id
+    WHERE m.status = 'published'
+    GROUP BY m.movie_id
+    ORDER BY avg_rating DESC, rating_count DESC;
+END //
+
+DELIMITER ;

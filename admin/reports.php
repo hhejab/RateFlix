@@ -6,14 +6,21 @@ if (!isset($_SESSION["user_id"]) || $_SESSION["role_id"] != 1) {
     die("Access denied. Admin only.");
 }
 
-$popular_movies = mysqli_query($conn, "
+$start_date = $_GET["start_date"] ?? "2000-01-01";
+$end_date = $_GET["end_date"] ?? date("Y-m-d");
+
+$stmt = mysqli_prepare($conn, "
     SELECT m.title, COUNT(r.rating_id) AS rating_count, IFNULL(AVG(r.rating_value), 0) AS avg_rating
     FROM dbProj_movies m
     LEFT JOIN dbProj_ratings r ON m.movie_id = r.movie_id
+    WHERE DATE(m.created_at) BETWEEN ? AND ?
     GROUP BY m.movie_id
     ORDER BY avg_rating DESC, rating_count DESC
-    LIMIT 10
 ");
+
+mysqli_stmt_bind_param($stmt, "ss", $start_date, $end_date);
+mysqli_stmt_execute($stmt);
+$popular_movies = mysqli_stmt_get_result($stmt);
 
 $creator_movies = mysqli_query($conn, "
     SELECT u.username, COUNT(m.movie_id) AS total_movies
@@ -38,12 +45,20 @@ $creator_movies = mysqli_query($conn, "
     <nav>
         <a href="index.php">Dashboard</a>
         <a href="users.php">Users</a>
+        <a href="comments.php">Comments</a>
+        <a href="movies.php">Movies</a>
         <a href="../logout.php">Logout</a>
     </nav>
 </header>
 
 <div class="container">
-    <h2>Most Popular Movies</h2>
+    <h2>Most Popular Movies Within Date Range</h2>
+
+    <form method="GET" class="search-form">
+        <input type="date" name="start_date" value="<?php echo $start_date; ?>">
+        <input type="date" name="end_date" value="<?php echo $end_date; ?>">
+        <button type="submit">Generate Report</button>
+    </form>
 
     <table border="1" cellpadding="10" cellspacing="0" width="100%">
         <tr>
@@ -61,7 +76,7 @@ $creator_movies = mysqli_query($conn, "
         <?php endwhile; ?>
     </table>
 
-    <h2>Content Created by Creator</h2>
+    <h2>Content Created by Specific Users</h2>
 
     <table border="1" cellpadding="10" cellspacing="0" width="100%">
         <tr>

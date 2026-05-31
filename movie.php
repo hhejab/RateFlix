@@ -141,7 +141,16 @@ $ratingDisplay = ($movie["avg_rating"] == floor($movie["avg_rating"]))
             <h2><?php echo htmlspecialchars($movie["title"]); ?></h2>
             <p><strong>Category:</strong> <?php echo htmlspecialchars($movie["category_name"]); ?></p>
             <p><strong>Creator:</strong> <?php echo htmlspecialchars($movie["username"]); ?></p>
-            <p><strong>Average Rating:</strong> <?php echo $ratingDisplay; ?>/5</p>
+            <p>
+                <strong>Average Rating:</strong>
+                <?php
+                if ($movie["avg_rating"] > 0) {
+                    echo rtrim(rtrim(number_format($movie["avg_rating"], 1), '0'), '.') . "/5";
+                } else {
+                    echo "No ratings yet";
+                }
+                ?>
+            </p>
             <p><?php echo nl2br(htmlspecialchars($movie["description"])); ?></p>
         </div>
     </div>

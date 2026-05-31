@@ -184,3 +184,20 @@ td, th {
     margin-bottom: 12px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
+
+.filter-form {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.filter-form input,
+.filter-form select {
+    max-width: none;
+    width: 100%;
+    box-sizing: border-box;
+}

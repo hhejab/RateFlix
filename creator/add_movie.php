@@ -22,6 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $title = trim($_POST["title"]);
     $short_description = trim($_POST["short_description"]);
     $description = trim($_POST["description"]);
+    $trailer_url = trim($_POST["trailer_url"]);
     $status = $_POST["status"];
 
     $poster_image = "";
@@ -37,19 +38,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else {
         $stmt = mysqli_prepare($conn, "
             INSERT INTO dbProj_movies
-            (creator_id, category_id, title, short_description, description, poster_image, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            (creator_id, category_id, title, short_description, description, poster_image, trailer_url, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ");
 
         mysqli_stmt_bind_param(
             $stmt,
-            "iisssss",
+            "iissssss",
             $creator_id,
             $category_id,
             $title,
             $short_description,
             $description,
             $poster_image,
+            $trailer_url,
             $status
         );
 
@@ -80,46 +82,52 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </header>
 
 <div class="container">
-    <h2>Add New Movie</h2>
+    <div class="form-card">
+        <h2>Add New Movie</h2>
 
-    <?php if ($error): ?>
-        <p style="color:red;"><?php echo $error; ?></p>
-    <?php endif; ?>
+        <?php if ($error): ?>
+            <p style="color:red;"><?php echo $error; ?></p>
+        <?php endif; ?>
 
-    <?php if ($success): ?>
-        <p style="color:green;"><?php echo $success; ?></p>
-    <?php endif; ?>
+        <?php if ($success): ?>
+            <p style="color:green;"><?php echo $success; ?></p>
+        <?php endif; ?>
 
-    <form method="POST" enctype="multipart/form-data">
-        <label>Title:</label><br>
-        <input type="text" name="title" required><br><br>
+        <form method="POST" enctype="multipart/form-data">
+            <label>Title:</label>
+            <input type="text" name="title" required>
 
-        <label>Category:</label><br>
-        <select name="category_id" required>
-            <?php while ($category = mysqli_fetch_assoc($categories)): ?>
-                <option value="<?php echo $category["category_id"]; ?>">
-                    <?php echo htmlspecialchars($category["category_name"]); ?>
-                </option>
-            <?php endwhile; ?>
-        </select><br><br>
+            <label>Category:</label>
+            <select name="category_id" required>
+                <?php while ($category = mysqli_fetch_assoc($categories)): ?>
+                    <option value="<?php echo $category["category_id"]; ?>">
+                        <?php echo htmlspecialchars($category["category_name"]); ?>
+                    </option>
+                <?php endwhile; ?>
+            </select>
 
-        <label>Short Description:</label><br>
-        <input type="text" name="short_description" required><br><br>
+            <label>Short Description:</label>
+            <input type="text" name="short_description" required>
 
-        <label>Full Description:</label><br>
-        <textarea name="description" rows="6" required></textarea><br><br>
+            <label>Full Description:</label>
+            <textarea name="description" rows="6" required></textarea>
 
-        <label>Poster Image:</label><br>
-        <input type="file" name="poster_image"><br><br>
+            <label>Poster Image:</label>
+            <input type="file" name="poster_image">
 
-        <label>Status:</label><br>
-        <select name="status">
-            <option value="draft">Draft</option>
-            <option value="published">Published</option>
-        </select><br><br>
+            <label>Trailer / Media URL:</label>
+            <input type="text" name="trailer_url" placeholder="YouTube trailer link or media URL">
 
-        <button type="submit">Add Movie</button>
-    </form>
+            <label>Status:</label>
+            <select name="status">
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
+            </select>
+
+            <br><br>
+            <button type="submit">Add Movie</button>
+        </form>
+    </div>
 </div>
 
 </body>

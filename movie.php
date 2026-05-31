@@ -1,4 +1,5 @@
 <?php
+session_start();
 include 'config.php';
 
 if (!isset($_GET["id"])) {
@@ -7,6 +8,40 @@ if (!isset($_GET["id"])) {
 }
 
 $movie_id = intval($_GET["id"]);
+$message = "";
+
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION["user_id"])) {
+    $user_id = $_SESSION["user_id"];
+
+    if (isset($_POST["rating_value"])) {
+        $rating_value = intval($_POST["rating_value"]);
+
+        $stmt = mysqli_prepare($conn, "
+            INSERT INTO dbProj_ratings (movie_id, user_id, rating_value)
+            VALUES (?, ?, ?)
+            ON DUPLICATE KEY UPDATE rating_value = VALUES(rating_value)
+        ");
+        mysqli_stmt_bind_param($stmt, "iii", $movie_id, $user_id, $rating_value);
+        mysqli_stmt_execute($stmt);
+
+        $message = "Rating submitted.";
+    }
+
+    if (isset($_POST["comment_text"])) {
+        $comment_text = trim($_POST["comment_text"]);
+
+        if (!empty($comment_text)) {
+            $stmt = mysqli_prepare($conn, "
+                INSERT INTO dbProj_comments (movie_id, user_id, comment_text)
+                VALUES (?, ?, ?)
+            ");
+            mysqli_stmt_bind_param($stmt, "iis", $movie_id, $user_id, $comment_text);
+            mysqli_stmt_execute($stmt);
+
+            $message = "Comment added.";
+        }
+    }
+}
 
 $stmt = mysqli_prepare($conn, "
     SELECT m.*, c.category_name, u.username,
@@ -25,8 +60,7 @@ $result = mysqli_stmt_get_result($stmt);
 $movie = mysqli_fetch_assoc($result);
 
 if (!$movie) {
-    echo "Movie not found.";
-    exit();
+    die("Movie not found.");
 }
 
 $comments_stmt = mysqli_prepare($conn, "
@@ -53,16 +87,26 @@ $comments = mysqli_stmt_get_result($comments_stmt);
     <h1>RateFlix</h1>
     <nav>
         <a href="index.php">Home</a>
-        <a href="signup.php">Sign Up</a>
-        <a href="login.php">Login</a>
+        <?php if (isset($_SESSION["user_id"])): ?>
+            <a href="dashboard.php">Dashboard</a>
+            <a href="logout.php">Logout</a>
+        <?php else: ?>
+            <a href="signup.php">Sign Up</a>
+            <a href="login.php">Login</a>
+        <?php endif; ?>
     </nav>
 </header>
 
 <div class="container">
+
+    <?php if ($message): ?>
+        <p style="color:green;"><?php echo $message; ?></p>
+    <?php endif; ?>
+
     <div class="movie-detail">
         <div class="poster large">
             <?php if (!empty($movie["poster_image"])): ?>
-                <img src="uploads/<?php echo htmlspecialchars($movie["poster_image"]); ?>" alt="Movie Poster">
+                <img src="uploads/<?php echo htmlspecialchars($movie["poster_image"]); ?>">
             <?php else: ?>
                 <div class="placeholder">No Image</div>
             <?php endif; ?>
@@ -77,21 +121,40 @@ $comments = mysqli_stmt_get_result($comments_stmt);
         </div>
     </div>
 
-    <h3>Comments</h3>
+    <h3>Rate this movie</h3>
 
-    <?php if (mysqli_num_rows($comments) > 0): ?>
-        <?php while ($comment = mysqli_fetch_assoc($comments)): ?>
-            <div class="comment">
-                <strong><?php echo htmlspecialchars($comment["username"]); ?></strong>
-                <p><?php echo htmlspecialchars($comment["comment_text"]); ?></p>
-                <small><?php echo $comment["created_at"]; ?></small>
-            </div>
-        <?php endwhile; ?>
+    <?php if (isset($_SESSION["user_id"])): ?>
+        <form method="POST">
+            <select name="rating_value" required>
+                <option value="">Select rating</option>
+                <option value="5">5 - Excellent</option>
+                <option value="4">4 - Good</option>
+                <option value="3">3 - Average</option>
+                <option value="2">2 - Poor</option>
+                <option value="1">1 - Bad</option>
+            </select>
+            <button type="submit">Submit Rating</button>
+        </form>
+
+        <h3>Add Comment</h3>
+        <form method="POST">
+            <textarea name="comment_text" rows="4" required></textarea><br><br>
+            <button type="submit">Add Comment</button>
+        </form>
     <?php else: ?>
-        <p>No comments yet.</p>
+        <p><a href="login.php">Login</a> to rate or comment.</p>
     <?php endif; ?>
 
-    <p><a class="btn" href="index.php">Back to Movies</a></p>
+    <h3>Comments</h3>
+
+    <?php while ($comment = mysqli_fetch_assoc($comments)): ?>
+        <div class="comment">
+            <strong><?php echo htmlspecialchars($comment["username"]); ?></strong>
+            <p><?php echo htmlspecialchars($comment["comment_text"]); ?></p>
+            <small><?php echo $comment["created_at"]; ?></small>
+        </div>
+    <?php endwhile; ?>
+
 </div>
 
 </body>

@@ -1,4 +1,4 @@
-INSERT INTO dbProj_users
+INSERT IGNORE INTO dbProj_users
 (role_id, username, email, password_hash)
 VALUES
 (1, 'admin1', 'admin@test.com', '123456'),
@@ -6,11 +6,11 @@ VALUES
 (3, 'viewer1', 'viewer@test.com', '123456');
 
 
-INSERT INTO dbProj_movies
+INSERT IGNORE INTO dbProj_movies
 (creator_id, category_id, title, short_description, description, status)
 VALUES
 (
-    2,
+    9,
     1,
     'John Wick',
     'Action movie',
@@ -18,7 +18,7 @@ VALUES
     'published'
 ),
 (
-    2,
+    9,
     5,
     'Interstellar',
     'Sci-Fi movie',
@@ -27,15 +27,15 @@ VALUES
 );
 
 
-INSERT INTO dbProj_ratings
+INSERT IGNORE INTO dbProj_ratings
 (movie_id, user_id, rating_value)
 VALUES
-(1, 3, 5),
-(2, 3, 4);
+(1, 1, 5),
+(2, 1, 4);
 
 
-INSERT INTO dbProj_comments
+INSERT IGNORE INTO dbProj_comments
 (movie_id, user_id, comment_text)
 VALUES
-(1, 3, 'Amazing movie!'),
-(2, 3, 'Very interesting story.');
+(1, 1, 'Amazing movie!'),
+(2, 1, 'Very interesting story.');

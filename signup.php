@@ -38,37 +38,51 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html>
 <head>
     <title>Sign Up - RateFlix</title>
+    <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
 
-<h1>RateFlix Sign Up</h1>
+<header>
+    <h1>RateFlix</h1>
+    <nav>
+        <a href="index.php">Home</a>
+        <a href="signup.php">Sign Up</a>
+        <a href="login.php">Login</a>
+    </nav>
+</header>
 
-<?php if ($error): ?>
-    <p style="color:red;"><?php echo $error; ?></p>
-<?php endif; ?>
+<div class="container">
+    <div class="form-card">
+        <h2>Create Account</h2>
 
-<?php if ($success): ?>
-    <p style="color:green;"><?php echo $success; ?></p>
-<?php endif; ?>
+        <?php if ($error): ?>
+            <p style="color:red;"><?php echo $error; ?></p>
+        <?php endif; ?>
 
-<form method="POST" onsubmit="return validateSignup();">
-    <label>Username:</label><br>
-    <input type="text" name="username" id="username"><br><br>
+        <?php if ($success): ?>
+            <p style="color:green;"><?php echo $success; ?></p>
+        <?php endif; ?>
 
-    <label>Email:</label><br>
-    <input type="email" name="email" id="email"><br><br>
+        <form method="POST" onsubmit="return validateSignup();">
+            <label>Username:</label>
+            <input type="text" name="username" id="username">
 
-    <label>Password:</label><br>
-    <input type="password" name="password" id="password"><br><br>
+            <label>Email:</label>
+            <input type="email" name="email" id="email">
 
-    <label>Confirm Password:</label><br>
-    <input type="password" name="confirm_password" id="confirm_password"><br><br>
+            <label>Password:</label>
+            <input type="password" name="password" id="password">
 
-    <button type="submit">Sign Up</button>
-</form>
+            <label>Confirm Password:</label>
+            <input type="password" name="confirm_password" id="confirm_password">
 
-<p>Already have an account? <a href="login.php">Login</a></p>
-<p><a href="index.php">Back to Home</a></p>
+            <button type="submit">Sign Up</button>
+        </form>
+
+        <p>Already have an account? <a href="login.php">Login</a></p>
+        <p><a href="index.php">Back to Home</a></p>
+    </div>
+</div>
 
 <script>
 function validateSignup() {

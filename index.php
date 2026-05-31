@@ -1,4 +1,5 @@
 <?php
+session_start();
 include 'config.php';
 
 $search = "";
@@ -46,10 +47,16 @@ if (isset($_GET["search"])) {
 <header>
     <h1>RateFlix</h1>
     <nav>
-        <a href="index.php">Home</a>
+    <a href="index.php">Home</a>
+
+    <?php if (isset($_SESSION["user_id"])): ?>
+        <a href="dashboard.php">Dashboard</a>
+        <a href="logout.php">Logout</a>
+    <?php else: ?>
         <a href="signup.php">Sign Up</a>
         <a href="login.php">Login</a>
-    </nav>
+    <?php endif; ?>
+</nav>
 </header>
 
 <div class="container">
@@ -75,7 +82,9 @@ if (isset($_GET["search"])) {
                     <h3><?php echo htmlspecialchars($movie["title"]); ?></h3>
                     <p class="category"><?php echo htmlspecialchars($movie["category_name"]); ?></p>
                     <p><?php echo htmlspecialchars($movie["short_description"]); ?></p>
-                    <p class="rating">Rating: <?php echo number_format($movie["avg_rating"], 1); ?>/5</p>
+                    <p class="rating">
+    Rating: <?php echo rtrim(rtrim(number_format($movie["avg_rating"], 1), '0'), '.'); ?>/5
+</p>
 
                     <a class="btn" href="movie.php?id=<?php echo $movie["movie_id"]; ?>">View Details</a>
                 </div>
